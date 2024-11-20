@@ -1,0 +1,43 @@
+int compare(const void *a, const void *b) {
+    int *intervalA = *(int **)a;
+    int *intervalB = *(int **)b;
+    return intervalA[0] - intervalB[0];
+}
+
+int** merge(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize, int** returnColumnSizes) {
+    if (intervalsSize == 1) {
+       *returnSize = 1;
+        *returnColumnSizes = malloc(sizeof(int) * (*returnSize));
+        (*returnColumnSizes)[0] = 2;
+        return intervals;
+    }
+qsort(intervals, intervalsSize, sizeof(int *), compare);
+    int** merged = malloc(intervalsSize * sizeof(int *));
+    *returnColumnSizes = malloc(intervalsSize * sizeof(int));
+    int mergeCount = 0;
+    merged[mergeCount] = malloc(2 * sizeof(int));
+    merged[mergeCount][0] = intervals[0][0];
+    merged[mergeCount][1] = intervals[0][1];
+
+    for (int i = 1; i < intervalsSize; i++) {
+        int start = intervals[i][0];
+        int end = intervals[i][1];
+
+        if (start <= merged[mergeCount][1]) {
+           if (end > merged[mergeCount][1]) {
+                merged[mergeCount][1] = end;
+            }
+        } 
+        else {
+            mergeCount++;
+            merged[mergeCount] = malloc(2 * sizeof(int));
+            merged[mergeCount][0] = start;
+            merged[mergeCount][1] = end;
+        }
+    }
+    *returnSize = mergeCount + 1;
+    for (int i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = 2;
+    }
+    return merged;
+}
