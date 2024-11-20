@@ -1,0 +1,46 @@
+struct HashSet
+{
+    int key;
+    UT_hash_handle hh;
+};
+
+int* intersection(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize)
+{
+    if (nums1Size > nums2Size)
+    {
+        nums1 = (int*)((uintptr_t)nums1 ^ (uintptr_t)nums2);
+        nums2 = (int*)((uintptr_t)nums2 ^ (uintptr_t)nums1);
+        nums1 = (int*)((uintptr_t)nums1 ^ (uintptr_t)nums2);
+        
+        nums1Size ^= nums2Size;
+        nums2Size ^= nums1Size;
+        nums1Size ^= nums2Size;
+    }
+    
+    struct HashSet* hashSet = NULL;
+    
+    for (struct HashSet* key; nums1Size--; )
+    {
+        HASH_FIND_INT(hashSet, nums1 + nums1Size, key);
+        if (!key)
+        {
+            key = malloc(sizeof(struct HashSet));
+            key->key = nums1[nums1Size];
+            HASH_ADD_INT(hashSet, key, key);
+        }
+    }
+    
+    for (struct HashSet* key; nums2Size--; )
+    {
+        HASH_FIND_INT(hashSet, nums2 + nums2Size, key);
+        if (key)
+        {
+            nums1[++nums1Size] = nums2[nums2Size];
+            HASH_DEL(hashSet, key);
+            free(key);
+        }
+    }
+    
+    *returnSize = nums1Size + 1;
+    return nums1;
+}
