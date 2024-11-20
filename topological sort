@@ -1,0 +1,41 @@
+#define maxN 2000
+
+int topologicalSort(int** graph, int n, int* order, int numCourses) {
+    int* indegree = (int*)calloc(numCourses, sizeof(int));
+    for (int i = 0; i < n; i++) {
+        indegree[graph[i][0]]++;
+    }
+    int stack[maxN];
+    int top = 0;
+    for (int i = 0; i < numCourses; i++) {
+        if (indegree[i] == 0) {
+            stack[top++] = i;
+        }
+    }
+    int idx = 0;
+    while (top > 0) {
+        top--;
+        int node = stack[top];
+        order[idx++] = node;
+        for (int i = 0; i < n; i++) {
+            if (node == graph[i][1]) {
+                indegree[graph[i][0]]--;
+                if (!indegree[graph[i][0]]) {
+                    stack[top++] = graph[i][0];
+                }
+            }
+        }
+    }
+    return idx == numCourses;
+}
+
+int* findOrder(int numCourses, int** prerequisites, int prerequisitesSize,
+               int* prerequisitesColSize, int* returnSize) {
+    int* order = (int*)malloc(numCourses * sizeof(int));
+    if (!topologicalSort(prerequisites, prerequisitesSize, order, numCourses)) {
+        *returnSize = 0;
+        return NULL;
+    }
+    *returnSize = numCourses;
+    return order;
+}
